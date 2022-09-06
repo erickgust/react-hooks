@@ -1,44 +1,42 @@
-import { useEffect, useState } from "react"
+import { createContext, ReactNode, useContext } from "react"
 
-function App() {
-  const [counter, setCounter] = useState(0)
-  const [name, setName] = useState('')
+type ThemeContextType = {
+  mode: 'dark' | 'light'
+}
 
-  const handlePlus = () => setCounter((counter) => counter + 1)
-  const handleMinus = () => setCounter((counter) => counter - 1)
-  const plusThree = () => {
-    setCounter(counter => counter + 1)
-    setCounter(counter => counter + 1)
-    setCounter(counter => counter + 1)
+const ThemeContext = createContext<ThemeContextType | null>(null)
+
+function ThemeContextProvider({ children }: { children: ReactNode | ReactNode[] }) {
+  return (
+    <ThemeContext.Provider value={{ mode: 'dark' }}>
+      {children}
+    </ThemeContext.Provider>
+  )
+}
+
+function useTheme() {
+  const theme = useContext(ThemeContext)
+
+  if (!theme) {
+    throw new Error('You must wrap your component with <ThemeContextProvider />')
   }
 
-  useEffect(() => {
-    console.log('first render')
+  return theme
+}
 
-    return () => console.log('unmount')
-  }, [])
+function App() {
+  return (
+    <ThemeContextProvider>
+      <Button />
+    </ThemeContextProvider>
+  )
+}
 
-  useEffect(() => {
-    console.log('counter')
-  }, [counter])
-
-  useEffect(() => {
-    console.log('name')
-  }, [name])
+function Button() {
+  const theme = useTheme()
 
   return (
-    <>
-      <h1>{counter}</h1>
-      <button type="button" onClick={handleMinus}>-</button>
-      <button type="button" onClick={handlePlus}>+</button>
-      <button type="button" onClick={plusThree}>+++</button>
-
-      <div>
-        <span>{name}</span>
-        <br />
-        <input onChange={e => setName(e.target.value)} />
-      </div>
-    </>
+    <button type="button">{theme.mode}</button>
   )
 }
 
