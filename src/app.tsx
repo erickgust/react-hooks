@@ -1,42 +1,54 @@
-import { createContext, ReactNode, useContext } from "react"
+import { useReducer } from "react"
 
-type ThemeContextType = {
-  mode: 'dark' | 'light'
+type Action = {
+  type: 'INCREMENT' | 'DECREMENT'
 }
 
-const ThemeContext = createContext<ThemeContextType | null>(null)
+function reducer(state: State, action: Action) {
+  switch (action.type.toUpperCase()) {
+    case 'INCREMENT':
+      return {
+        counter: state.counter + 1,
+        clicks: state.clicks + 1
+      }
 
-function ThemeContextProvider({ children }: { children: ReactNode | ReactNode[] }) {
-  return (
-    <ThemeContext.Provider value={{ mode: 'dark' }}>
-      {children}
-    </ThemeContext.Provider>
-  )
-}
+    case 'DECREMENT':
+      return {
+        counter: state.counter - 1,
+        clicks: state.clicks + 1
+      }
 
-function useTheme() {
-  const theme = useContext(ThemeContext)
-
-  if (!theme) {
-    throw new Error('You must wrap your component with <ThemeContextProvider />')
+    default:
+      return state
   }
-
-  return theme
 }
+
+type State = typeof initialValue
+
+const initialValue = {
+  clicks: 0,
+  counter: 0
+}
+
 
 function App() {
-  return (
-    <ThemeContextProvider>
-      <Button />
-    </ThemeContextProvider>
-  )
-}
+  const [state, dispatch] = useReducer(reducer, initialValue)
 
-function Button() {
-  const theme = useTheme()
+  function handlePlus() {
+    dispatch({ type: "INCREMENT" })
+  }
+
+  function handleMinus() {
+    dispatch({ type: "DECREMENT" })
+  }
 
   return (
-    <button type="button">{theme.mode}</button>
+    <div>
+      <h1>Counter: {state.counter}</h1>
+      <h4>Cliques: {state.clicks}</h4>
+      <button type="button" onClick={handleMinus}>-</button>
+      <button type="button" onClick={handlePlus}>+</button>
+    </div>
   )
 }
 
