@@ -1,55 +1,31 @@
-import { useReducer } from "react"
+import { useCallback, useState } from "react"
 
-type Action = {
-  type: 'INCREMENT' | 'DECREMENT'
-}
-
-function reducer(state: State, action: Action) {
-  switch (action.type.toUpperCase()) {
-    case 'INCREMENT':
-      return {
-        counter: state.counter + 1,
-        clicks: state.clicks + 1
-      }
-
-    case 'DECREMENT':
-      return {
-        counter: state.counter - 1,
-        clicks: state.clicks + 1
-      }
-
-    default:
-      return state
-  }
-}
-
-type State = typeof initialValue
-
-const initialValue = {
-  clicks: 0,
-  counter: 0
-}
-
+const fnCounter = new Set()
 
 function App() {
-  const [state, dispatch] = useReducer(reducer, initialValue)
+  const [counter, setCounter] = useState(0)
 
-  function handlePlus() {
-    dispatch({ type: "INCREMENT" })
-  }
+  const handlePlus = useCallback(() => {
+    setCounter((prevState) => prevState + 1)
+  }, [])
 
-  function handleMinus() {
-    dispatch({ type: "DECREMENT" })
-  }
+  fnCounter.add(handlePlus)
+  console.log(fnCounter.size)
 
   return (
     <div>
-      <h1>Counter: {state.counter}</h1>
-      <h4>Cliques: {state.clicks}</h4>
-      <button type="button" onClick={handleMinus}>-</button>
-      <button type="button" onClick={handlePlus}>+</button>
+      <h1>{counter}</h1>
+      <Button onClick={handlePlus}/>
     </div>
   )
 }
 
-export { App }
+type ButtonProps = {
+  onClick: () => void
+}
+
+const Button = ({ onClick }: ButtonProps) => (
+  <button type="button" onClick={onClick}>+</button>
+)
+
+export {App}
