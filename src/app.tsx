@@ -1,21 +1,46 @@
-import { useRef } from "react"
+import { forwardRef, useImperativeHandle, useRef } from "react"
 
 function App() {
-  console.log('App render')
+  const formRef = useRef<FormHandle | null>(null)
 
-  const inputRef = useRef<HTMLInputElement | null>(null)
-
-  function handlePrintName() {
-    if (!inputRef.current) return
-    alert(inputRef.current.value)
+  function handleSubmit() {
+    console.log(formRef)
+    formRef.current?.submit
   }
 
   return (
     <div>
-      <input type="text" ref={inputRef} />
-      <button type="button" onClick={handlePrintName}>Print name</button>
+      <Form ref={formRef} />
+      <button onClick={handleSubmit} type="button">Submit</button>
     </div>
   )
 }
 
-export {App}
+type FormHandle = {
+  submit: () => void
+}
+
+const Form = forwardRef<FormHandle>((props, ref) => {
+  const inputRef = useRef<HTMLInputElement | null>(null)
+
+  function handleSubmit() {
+    console.log(inputRef)
+    alert(inputRef.current?.value)
+  }
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      submit: handleSubmit
+    }),
+    []
+  )
+
+  return (
+    <form>
+      <input type="text" ref={inputRef} />
+    </form>
+  )
+})
+
+export { App }
