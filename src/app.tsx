@@ -1,46 +1,24 @@
-import { forwardRef, useImperativeHandle, useRef } from "react"
+import { useLayoutEffect, useState } from "react"
 
 function App() {
-  const formRef = useRef<FormHandle | null>(null)
+  const [counter, setCounter] = useState(0)
 
-  function handleSubmit() {
-    console.log(formRef)
-    formRef.current?.submit
+  useLayoutEffect(() => {
+    for (let i = 0; i < 5000; i++) {
+      console.log(i)
+    }
+  }, [counter])
+
+  function handlePlus() {
+    setCounter(prevState => prevState + 1)
   }
 
   return (
     <div>
-      <Form ref={formRef} />
-      <button onClick={handleSubmit} type="button">Submit</button>
+      <h1>{counter}</h1>
+      <button type="button" onClick={handlePlus}>+</button>
     </div>
   )
 }
-
-type FormHandle = {
-  submit: () => void
-}
-
-const Form = forwardRef<FormHandle>((props, ref) => {
-  const inputRef = useRef<HTMLInputElement | null>(null)
-
-  function handleSubmit() {
-    console.log(inputRef)
-    alert(inputRef.current?.value)
-  }
-
-  useImperativeHandle(
-    ref,
-    () => ({
-      submit: handleSubmit
-    }),
-    []
-  )
-
-  return (
-    <form>
-      <input type="text" ref={inputRef} />
-    </form>
-  )
-})
 
 export { App }
