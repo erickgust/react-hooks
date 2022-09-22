@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useDebugValue, useEffect, useState } from "react"
 
 function App() {
   const [loading, response] = useFetch('https://api.github.com/users/erickgust')
@@ -14,9 +14,14 @@ function App() {
   )
 }
 
-function useFetch<T>(url: string) {
+type ResponseType = {
+  json: Promise<unknown>
+  status: number
+}
+
+function useFetch(url: string) {
   const [loading, setLoading] = useState(true)
-  const [response, setResponse] = useState<Promise<T> | null>(null)
+  const [response, setResponse] = useState<ResponseType | null>(null)
 
   useEffect(() => {
     (async () => {
@@ -24,11 +29,15 @@ function useFetch<T>(url: string) {
       const json = await resp.json()
 
       setLoading(false)
-      setResponse(json)
+      setResponse({ json, status: resp.status })
     })()
   }, [url])
 
-  return [loading, response]
+  useDebugValue(response?.status, (message) => {
+    return `Status: ${message}`
+  })
+
+  return [loading, response?.json]
 }
 
 export { App }
