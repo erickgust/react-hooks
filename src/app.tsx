@@ -1,24 +1,34 @@
-import { useLayoutEffect, useState } from "react"
+import { useEffect, useState } from "react"
 
 function App() {
-  const [counter, setCounter] = useState(0)
+  const [loading, response] = useFetch('https://api.github.com/users/erickgust')
 
-  useLayoutEffect(() => {
-    for (let i = 0; i < 5000; i++) {
-      console.log(i)
-    }
-  }, [counter])
-
-  function handlePlus() {
-    setCounter(prevState => prevState + 1)
+  if (loading) {
+    return <h1>Loading...</h1>
   }
 
   return (
     <div>
-      <h1>{counter}</h1>
-      <button type="button" onClick={handlePlus}>+</button>
+      <h1>{JSON.stringify(response)}</h1>
     </div>
   )
+}
+
+function useFetch<T>(url: string) {
+  const [loading, setLoading] = useState(true)
+  const [response, setResponse] = useState<Promise<T> | null>(null)
+
+  useEffect(() => {
+    (async () => {
+      const resp = await fetch(url)
+      const json = await resp.json()
+
+      setLoading(false)
+      setResponse(json)
+    })()
+  }, [url])
+
+  return [loading, response]
 }
 
 export { App }
